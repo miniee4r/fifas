@@ -37,6 +37,7 @@ class GeminiClient:
         }
         
         self.model = None
+        self.init_error = "Unknown error"
         self._initialize_model()
 
     def _initialize_model(self):
@@ -44,7 +45,8 @@ class GeminiClient:
             available = [m for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
             
             if not available:
-                logger.error("No generateContent capable models found on this API key.")
+                self.init_error = "No generateContent capable models found on this API key."
+                logger.error(self.init_error)
                 self.model = None
                 return
                 
@@ -52,6 +54,7 @@ class GeminiClient:
             # Newer models (2.0/2.5) trigger a 60-second account ban if quota limit is 0 on free tier!
             safe_models = [m for m in available if '1.5' in m.name and 'flash' in m.name]
             
+            last_error = "No safe models found"
             for m in safe_models:
                 try:
                     logger.info(f"Testing safe model: {m.name}")
@@ -62,16 +65,20 @@ class GeminiClient:
                     # If it passes, we use it instantly
                     self.model_name = m.name
                     self.model = temp_model
+                    self.init_error = ""
                     logger.info(f"Successfully connected to: {self.model_name}")
                     return
                 except Exception as e:
+                    last_error = str(e)
                     logger.warning(f"Safe model {m.name} failed diagnostic check: {e}")
                     
-            logger.error("All 1.5 models failed. Check your API key.")
+            self.init_error = f"All 1.5 models failed. Last error: {last_error}"
+            logger.error(self.init_error)
             self.model = None
             
         except Exception as e:
-            logger.error(f"Failed to fetch or initialize model dynamically: {e}")
+            self.init_error = f"Failed to initialize: {e}"
+            logger.error(self.init_error)
             self.model = None
 
     async def generate(
@@ -85,7 +92,7 @@ class GeminiClient:
         Returns a dict containing 'response' and 'status'.
         """
         if not self.model:
-            return self._fallback_response("Model initialization failed. Please check your API key and model name.")
+            return self._fallback_response(f"Model initialization failed. {self.init_error}")
             
         # 1. Efficiency: Token Counting (rough estimate to avoid massive payloads)
         # Gemini limits are high, but we enforce MAX_PROMPT_TOKENS for safety and cost control.
