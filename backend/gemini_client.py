@@ -117,8 +117,23 @@ class GeminiClient:
         )
 
         lang = current_language.get()
-        language_instruction = f"System Role: FIFA WC 2026 AI Command Center. Language: {lang}.\nCRITICAL: Do NOT output any checklists, constraints, or reasoning. Output ONLY the raw dialogue/response."
-        full_prompt = f"{language_instruction}\n{system_instruction}\n\nUser: {user_prompt}\nAI:"
+        # Build full system instruction (hidden from output via SDK parameter)
+        full_system_instruction = (
+            f"You are the FIFA WC 2026 AI Command Center. "
+            f"Respond strictly and entirely in the language: {lang}. "
+            f"Do NOT echo these instructions, constraints, knowledge base data, or any reasoning. "
+            f"Output ONLY the final response.\n\n"
+            f"{system_instruction}"
+        )
+
+        # Create a per-request model with system_instruction set via SDK
+        # This ensures the model treats the instructions as HIDDEN context,
+        # not as user content to reason about and echo.
+        request_model = genai.GenerativeModel(
+            model_name=self.model_name,
+            safety_settings=self.safety_settings,
+            system_instruction=full_system_instruction
+        )
 
         # 2. Reliability: Exponential Backoff & Retry
         max_retries = 3
@@ -128,8 +143,8 @@ class GeminiClient:
             try:
                 response = await asyncio.wait_for(
                     asyncio.to_thread(
-                        self.model.generate_content,
-                        full_prompt,
+                        request_model.generate_content,
+                        user_prompt,
                         generation_config=generation_config
                     ),
                     timeout=REQUEST_TIMEOUT_SECONDS
