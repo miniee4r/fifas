@@ -1,0 +1,67 @@
+# ============================================
+# STRICT .gitignore — FIFA WC 2026 Smart Stadium
+# Target: Keep repo UNDER 10 MB
+# ============================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+.env
+
+# --- Node (if any frontend tooling) ---
+node_modules/
+package-lock.json
+yarn.lock
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Media / Large Files ---
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.iso
+*.dmg
+*.pdf
+*.psd
+*.ai
+
+# --- Logs & Caches ---
+*.log
+logs/
+.cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# --- Secrets ---
+.env
+.env.local
+.env.production
+*.pem
+*.key

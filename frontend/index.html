@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA WC 2026 Smart Stadium AI Command Center</title>
+    <!-- Accessibility/SEO: Meta descriptions, proper title -->
+    <meta name="description" content="Official Smart Stadium AI Command Center for fans and operators at FIFA World Cup 2026.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Semantic HTML: Header, nav, main, sections -->
+    <header role="banner" class="glass-panel top-bar">
+        <h1 data-i18n="app_title">🏆 FIFA WC 2026 AI Command Center</h1>
+        
+        <div class="global-controls">
+            <div class="control-group">
+                <label for="stadium-select" data-i18n="lbl_stadium">🏟️ Stadium</label>
+                <select id="stadium-select" aria-label="Select Stadium">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="language-select" data-i18n="lbl_lang">🌐 Language</label>
+                <select id="language-select" aria-label="Select Language">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <nav aria-label="Main Navigation" class="tabs">
+        <button id="tab-fan" class="tab-btn active" aria-selected="true" aria-controls="panel-fan">🧑 Fan Mode</button>
+        <button id="tab-ops" class="tab-btn" aria-selected="false" aria-controls="panel-ops">👷 Operations Mode</button>
+        <button id="tab-history" class="tab-btn" aria-selected="false" aria-controls="panel-history">📜 History Log</button>
+    </nav>
+
+    <main role="main">
+        <!-- ================= FAN MODE ================= -->
+        <section id="panel-fan" class="panel active" role="tabpanel" aria-labelledby="tab-fan">
+            <div class="grid-layout">
+                
+                <!-- Concierge Chat -->
+                <article class="glass-panel chat-container" aria-label="Multilingual AI Fan Concierge">
+                    <h2>F1: Multilingual Fan Concierge</h2>
+                    <div id="chat-messages" class="messages" role="log" aria-live="polite">
+                        <div class="message ai-message">
+                            Welcome! I am your Smart Stadium AI assistant. How can I help you today?
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <input type="text" id="chat-input" placeholder="Ask about gates, food, rules..." aria-label="Chat input">
+                        <button id="chat-send" aria-label="Send message">Send</button>
+                    </div>
+                </article>
+                
+                <!-- Accessibility Navigator -->
+                <article class="glass-panel a11y-container" aria-label="Accessibility Navigator">
+                    <h2>F3: Accessibility Navigator</h2>
+                    <p class="subtitle">Personalized accessible routing.</p>
+                    
+                    <div class="form-group">
+                        <label for="a11y-type">Accessibility Need:</label>
+                        <select id="a11y-type">
+                            <option value="wheelchair">Wheelchair Access</option>
+                            <option value="sensory">Sensory / Quiet Spaces</option>
+                            <option value="visual">Visual Impairment Support</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="a11y-dest">Destination:</label>
+                        <input type="text" id="a11y-dest" placeholder="e.g. My seat in Section 104, Food Court">
+                    </div>
+                    
+                    <button id="a11y-btn" class="action-btn">Generate Route</button>
+                    
+                    <div id="a11y-result" class="result-box hidden" aria-live="polite"></div>
+                </article>
+                
+            </div>
+        </section>
+
+        <!-- ================= OPERATIONS MODE ================= -->
+        <section id="panel-ops" class="panel hidden" role="tabpanel" aria-labelledby="tab-ops">
+            <div class="grid-layout cols-3">
+                
+                <!-- Crowd Flow Intelligence -->
+                <article class="glass-panel" aria-label="Crowd Flow Intelligence">
+                    <h2>F2: Crowd Intelligence</h2>
+                    <p class="subtitle">Simulate zone densities.</p>
+                    
+                    <div class="simulator-controls">
+                        <div class="form-group">
+                            <label for="zone-north">North Zone (%)</label>
+                            <input type="range" id="zone-north" min="0" max="100" value="40">
+                            <span id="val-north">40%</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="zone-south">South Zone (%)</label>
+                            <input type="range" id="zone-south" min="0" max="100" value="95">
+                            <span id="val-south">95%</span>
+                        </div>
+                    </div>
+                    
+                    <button id="crowd-btn" class="action-btn warning-btn">Analyze Flow</button>
+                    <div id="crowd-result" class="result-box structured-box hidden" aria-live="polite"></div>
+                </article>
+                
+                <!-- Incident Response -->
+                <article class="glass-panel" aria-label="Incident Response Advisor">
+                    <h2>F6: Incident Advisor</h2>
+                    
+                    <div class="form-group">
+                        <label for="inc-type">Type:</label>
+                        <select id="inc-type">
+                            <option value="medical">Medical Emergency</option>
+                            <option value="security">Security Breach</option>
+                            <option value="weather">Extreme Weather</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="inc-loc">Location:</label>
+                        <input type="text" id="inc-loc" value="Gate 4">
+                    </div>
+                    <div class="form-group">
+                        <label for="inc-sev">Severity:</label>
+                        <select id="inc-sev">
+                            <option value="Low">Low</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    
+                    <button id="incident-btn" class="action-btn danger-btn">Generate Protocol</button>
+                    <div id="incident-result" class="result-box structured-box hidden" aria-live="polite"></div>
+                </article>
+                
+                <!-- Match Briefing -->
+                <article class="glass-panel" aria-label="Match Briefing Generator">
+                    <h2>F8: Match Briefing</h2>
+                    
+                    <div class="form-group">
+                        <label for="brf-match">Match:</label>
+                        <input type="text" id="brf-match" value="USA vs England">
+                    </div>
+                    <div class="form-group">
+                        <label for="brf-weather">Weather:</label>
+                        <input type="text" id="brf-weather" value="Heavy Rain, 15°C">
+                    </div>
+                    <div class="form-group">
+                        <label for="brf-att">Expected Attendance:</label>
+                        <input type="number" id="brf-att" value="80000">
+                    </div>
+                    
+                    <button id="briefing-btn" class="action-btn success-btn">Generate Briefing</button>
+                    <div id="briefing-result" class="result-box structured-box hidden" aria-live="polite"></div>
+                </article>
+                <!-- Stadium Workflow View -->
+                <article class="glass-panel" aria-label="Interactive Stadium Workflow View" style="grid-column: 1 / -1;">
+                    <h2>Interactive Stadium View</h2>
+                    <p class="subtitle">Click any zone for real-time AI-generated operational intelligence.</p>
+                    
+                    <div class="stadium-map">
+                        <div class="map-label">── Entry Gates ──</div>
+                        <div class="map-row">
+                            <button class="map-zone gate-zone" data-zone="Gate A (North)">🚪 Gate A</button>
+                            <button class="map-zone gate-zone" data-zone="Gate B (East)">🚪 Gate B</button>
+                            <button class="map-zone gate-zone" data-zone="Gate C (South)">🚪 Gate C</button>
+                            <button class="map-zone gate-zone" data-zone="Gate D (West)">🚪 Gate D</button>
+                        </div>
+                        <div class="map-arrow">↓</div>
+                        <div class="map-label">── Concessions & Food ──</div>
+                        <div class="map-row">
+                            <button class="map-zone food-zone" data-zone="North Concourse Food Court">🍔 North Concessions</button>
+                            <button class="map-zone food-zone" data-zone="South Concourse Food Court">🍕 South Concessions</button>
+                            <button class="map-zone food-zone" data-zone="East VIP Lounge">🥂 East VIP Lounge</button>
+                        </div>
+                        <div class="map-arrow">↓</div>
+                        <div class="map-label">── Seating Sections ──</div>
+                        <div class="map-row">
+                            <button class="map-zone seat-zone" data-zone="Block 101, Lower North">Block 101</button>
+                            <button class="map-zone seat-zone" data-zone="Block 102, Lower North">Block 102</button>
+                            <button class="map-zone seat-zone" data-zone="Block 201, Upper South">Block 201</button>
+                            <button class="map-zone seat-zone" data-zone="Block 202, Upper South">Block 202</button>
+                            <button class="map-zone seat-zone" data-zone="Block 301, East Wing">Block 301</button>
+                        </div>
+                    </div>
+                    
+                    <div id="stadium-model-result" class="result-box structured-box hidden" aria-live="polite"></div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- ================= HISTORY MODE ================= -->
+        <section id="panel-history" class="panel hidden" role="tabpanel" aria-labelledby="tab-history">
+            <article class="glass-panel" aria-label="Local History Log">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>📜 Local History Log</h2>
+                    <button id="clear-history-btn" class="action-btn danger-btn" style="width: auto; margin: 0; padding: 0.4rem 1rem;">Clear History</button>
+                </div>
+                <p class="subtitle">All past interactions and generated intelligence are saved locally to this device.</p>
+                <div id="history-container" class="history-list"></div>
+            </article>
+        </section>
+    </main>
+
+    <div id="error-toast" class="toast hidden" role="alert" aria-live="assertive">
+        <span id="error-message"></span>
+        <button id="close-toast" aria-label="Close error">×</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

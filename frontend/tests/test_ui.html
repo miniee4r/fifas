@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frontend Min-Max Test Suite</title>
+    <style>
+        body { font-family: monospace; background: #0d1117; color: #e6edf3; padding: 2rem; }
+        .pass { color: #3fb950; }
+        .fail { color: #f85149; }
+        .summary { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #30363d; font-size: 1.2rem; }
+        /* Hidden iframe for testing the actual app */
+        #app-frame { width: 0; height: 0; border: none; position: absolute; visibility: hidden; }
+    </style>
+</head>
+<body>
+    <h1>🏟️ Stadium AI — Frontend Test Suite</h1>
+    <div id="results"></div>
+    <div id="summary" class="summary"></div>
+
+    <iframe id="app-frame" src="../index.html"></iframe>
+
+    <script>
+        const results = document.getElementById('results');
+        let passCount = 0;
+        let failCount = 0;
+
+        function assert(condition, message) {
+            const div = document.createElement('div');
+            if (condition) {
+                div.className = 'pass';
+                div.textContent = `✅ PASS: ${message}`;
+                passCount++;
+            } else {
+                div.className = 'fail';
+                div.textContent = `❌ FAIL: ${message}`;
+                failCount++;
+                console.error("Failed:", message);
+            }
+            results.appendChild(div);
+        }
+
+        window.addEventListener('load', () => {
+            const frame = document.getElementById('app-frame');
+            
+            // Wait for iframe to fully load its DOM
+            frame.onload = () => {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                runTests(doc);
+            };
+            // Trigger onload if already loaded
+            if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+                runTests(frame.contentDocument);
+            }
+        });
+
+        function runTests(doc) {
+            setTimeout(() => {
+                try {
+                    // --- DOM Tests ---
+                    assert(doc.getElementById('chat-input') !== null, "DOM: #chat-input exists");
+                    assert(doc.getElementById('stadium-select') !== null, "DOM: #stadium-select exists");
+                    assert(doc.getElementById('language-select') !== null, "DOM: #language-select exists");
+                    
+                    // --- A11y & Semantic Tests ---
+                    assert(doc.querySelector('h1') !== null, "Semantic: exactly one <h1> element exists");
+                    assert(doc.querySelector('main') !== null, "Semantic: <main> element present");
+                    
+                    const chatMessages = doc.getElementById('chat-messages');
+                    assert(chatMessages && chatMessages.getAttribute('aria-live') === 'polite', "A11y: message container has aria-live='polite'");
+                    
+                    const sendBtn = document.getElementById('chat-send') || doc.getElementById('chat-send');
+                    assert(sendBtn && sendBtn.getAttribute('aria-label') === 'Send message', "A11y: send button has aria-label");
+                    
+                    const tabs = doc.querySelectorAll('.tab-btn');
+                    assert(tabs.length === 2 && tabs[0].getAttribute('aria-selected') === 'true', "A11y: Tab buttons use aria-selected correctly");
+
+                    // Render Summary
+                    const summary = document.getElementById('summary');
+                    summary.innerHTML = `Result: ${passCount}/${passCount + failCount} passed | ${failCount} failed`;
+                    summary.className = failCount === 0 ? 'summary pass' : 'summary fail';
+                    
+                } catch (e) {
+                    assert(false, "Test execution crashed: " + e.message);
+                }
+            }, 500); // Give JS time to initialize
+        }
+    </script>
+</body>
+</html>
