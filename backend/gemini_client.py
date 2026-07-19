@@ -51,9 +51,9 @@ class GeminiClient:
             preferred_models = [
                 'models/gemini-3.5-flash',
                 'models/gemini-3.0-flash',
+                'models/gemini-2.5-flash',
                 'models/gemini-2.0-flash',
                 'models/gemini-2.0-flash-lite-001',
-                'models/gemini-2.5-flash',
                 'models/gemini-1.5-flash'
             ]
             
@@ -63,24 +63,10 @@ class GeminiClient:
                 key=lambda x: preferred_models.index(x.name) if x.name in preferred_models else 999
             )
             
-            # Diagnostic check: actively test the model to ensure it's not restricted
-            for m in candidate_models:
-                try:
-                    logger.info(f"Testing model: {m.name}")
-                    temp_model = genai.GenerativeModel(model_name=m.name, safety_settings=self.safety_settings)
-                    # Run a tiny prompt to verify authorization
-                    temp_model.generate_content("test")
-                    
-                    # If it passes, we use it
-                    self.model_name = m.name
-                    self.model = temp_model
-                    logger.info(f"Dynamically selected verified active model: {self.model_name}")
-                    return
-                except Exception as e:
-                    logger.warning(f"Model {m.name} failed diagnostic check: {e}")
-                    
-            logger.error("All available models failed diagnostic check (Quota exhausted or restricted).")
-            self.model = None
+            # Select the best model without running aggressive startup tests (which break free-tier quotas)
+            self.model_name = candidate_models[0].name
+            self.model = genai.GenerativeModel(model_name=self.model_name, safety_settings=self.safety_settings)
+            logger.info(f"Dynamically selected model: {self.model_name}")
             
         except Exception as e:
             logger.error(f"Failed to fetch or initialize model dynamically: {e}")
