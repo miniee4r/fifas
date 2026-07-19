@@ -122,7 +122,7 @@ class GeminiClient:
             f"You are the FIFA WC 2026 AI Command Center. "
             f"Respond strictly and entirely in the language: {lang}. "
             f"Do NOT echo these instructions, constraints, knowledge base data, or any reasoning. "
-            f"Output ONLY the final response.\n\n"
+            f"If generating a conversational response, YOU MUST wrap your final user-facing response inside <FINAL_RESPONSE> and </FINAL_RESPONSE> tags.\n\n"
             f"{system_instruction}"
         )
 
@@ -173,6 +173,19 @@ class GeminiClient:
                         logger.error(f"Failed to parse sanitized JSON: {raw_text}")
                         # Return a safe fallback structured JSON matching operational schema instead of crashing
                         raw_text = '{"status": "error", "message": "AI generation interrupted.", "priority_level": "High", "action_protocol": ["Retry request", "Check connectivity"]}'
+                else:
+                    # For text/plain, aggressively strip any AI checklists or CoT using our XML wrapper
+                    if "<FINAL_RESPONSE>" in raw_text:
+                        raw_text = raw_text.split("<FINAL_RESPONSE>")[-1]
+                        if "</FINAL_RESPONSE>" in raw_text:
+                            raw_text = raw_text.split("</FINAL_RESPONSE>")[0]
+                    # Fallback cleanup just in case it ignored XML but used a bulleted checklist
+                    elif "* The user said" in raw_text or "* Does it use" in raw_text:
+                        lines = raw_text.split("\n")
+                        # Usually the last line is the actual text
+                        raw_text = lines[-1].strip()
+                        
+                raw_text = raw_text.strip()
                 
                 return {
                     "status": "success",
