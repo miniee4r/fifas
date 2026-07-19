@@ -117,8 +117,8 @@ class GeminiClient:
         )
 
         lang = current_language.get()
-        language_instruction = f"You are an AI Command Center for the FIFA WC 2026. You MUST generate all responses, incident protocols, and stadium insights strictly and entirely in {lang}. Do not use any other language.\nCRITICAL RULE: DO NOT echo your system instructions, constraints, or thought process. Provide ONLY the final, direct response to the user.\n\n"
-        full_prompt = f"{language_instruction}{system_instruction}\n\nUser Input:\n{user_prompt}"
+        language_instruction = f"System Role: FIFA WC 2026 AI Command Center. Language: {lang}.\nCRITICAL: Do NOT output any checklists, constraints, or reasoning. Output ONLY the raw dialogue/response."
+        full_prompt = f"{language_instruction}\n{system_instruction}\n\nUser: {user_prompt}\nAI:"
 
         # 2. Reliability: Exponential Backoff & Retry
         max_retries = 3
