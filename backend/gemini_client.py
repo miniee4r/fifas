@@ -178,7 +178,7 @@ class GeminiClient:
                     if attempt == max_retries - 1:
                         return self._fallback_response("service_busy")
                 elif attempt == max_retries - 1:
-                    return self._fallback_response("general")
+                    return self._fallback_response(error_str)
                 
             # Backoff
             await asyncio.sleep(base_delay * (2 ** attempt))
