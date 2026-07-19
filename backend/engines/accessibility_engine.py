@@ -32,12 +32,24 @@ async def generate_accessible_route(disability_type: str, destination: str, stad
     SECURITY GUARDRAILS:
     - Never give medical advice.
     - If the destination is unknown, politely direct them to the nearest Guest Services.
+    
+    CRITICAL: YOU MUST OUTPUT A STRICT JSON OBJECT matching exactly this schema:
+    {{"message": "your final routing guidance here"}}
     """
 
     user_prompt = f"I need accessible routing for '{disability_type}' to reach '{destination}'."
 
     result = await client.generate(
         system_instruction=system_prompt,
-        user_prompt=user_prompt
+        user_prompt=user_prompt,
+        response_mime_type="application/json"
     )
+    
+    if result.get("status") == "success":
+        try:
+            parsed = json.loads(result["response"])
+            result["response"] = parsed.get("message", result["response"])
+        except json.JSONDecodeError:
+            pass
+            
     return result
