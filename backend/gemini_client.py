@@ -41,11 +41,34 @@ class GeminiClient:
 
     def _initialize_model(self):
         try:
-            # Force gemini-1.5-flash which has the highest free-tier quota (15 RPM / 1500 RPD)
-            # Newer models (2.0/2.5) often return 'limit: 0' for free tier accounts in certain regions
-            self.model_name = 'gemini-1.5-flash'
-            self.model = genai.GenerativeModel(model_name=self.model_name, safety_settings=self.safety_settings)
-            logger.info(f"Dynamically selected model: {self.model_name}")
+            available = [m for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+            
+            if not available:
+                logger.error("No generateContent capable models found on this API key.")
+                self.model = None
+                return
+                
+            # Filter to ONLY 1.5 models. 
+            # Newer models (2.0/2.5) trigger a 60-second account ban if quota limit is 0 on free tier!
+            safe_models = [m for m in available if '1.5' in m.name and 'flash' in m.name]
+            
+            for m in safe_models:
+                try:
+                    logger.info(f"Testing safe model: {m.name}")
+                    temp_model = genai.GenerativeModel(model_name=m.name, safety_settings=self.safety_settings)
+                    # Run a tiny prompt to verify authorization and exact model name
+                    temp_model.generate_content("test")
+                    
+                    # If it passes, we use it instantly
+                    self.model_name = m.name
+                    self.model = temp_model
+                    logger.info(f"Successfully connected to: {self.model_name}")
+                    return
+                except Exception as e:
+                    logger.warning(f"Safe model {m.name} failed diagnostic check: {e}")
+                    
+            logger.error("All 1.5 models failed. Check your API key.")
+            self.model = None
             
         except Exception as e:
             logger.error(f"Failed to fetch or initialize model dynamically: {e}")
