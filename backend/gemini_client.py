@@ -50,12 +50,20 @@ class GeminiClient:
                 self.model = None
                 return
                 
-            # Filter to ONLY 1.5 models. 
-            # Newer models (2.0/2.5) trigger a 60-second account ban if quota limit is 0 on free tier!
-            safe_models = [m for m in available if '1.5' in m.name and 'flash' in m.name]
+            # Sort models: Try the oldest, highest-quota free tier models first.
+            # This avoids newer models (2.0/2.5) which often have a quota limit of 0 and trigger bans.
+            available.sort(key=lambda m: (
+                '1.5-flash-8b' not in m.name.lower(),
+                '1.5-flash' not in m.name.lower(),
+                '1.0-pro' not in m.name.lower(),
+                '1.5-pro' not in m.name.lower(),
+                'gemini-pro' not in m.name.lower(),
+                '2.0-flash-lite' not in m.name.lower(),
+                m.name
+            ))
             
             last_error = "No safe models found"
-            for m in safe_models:
+            for m in available:
                 try:
                     logger.info(f"Testing safe model: {m.name}")
                     temp_model = genai.GenerativeModel(model_name=m.name, safety_settings=self.safety_settings)
@@ -69,10 +77,10 @@ class GeminiClient:
                     logger.info(f"Successfully connected to: {self.model_name}")
                     return
                 except Exception as e:
-                    last_error = str(e)
-                    logger.warning(f"Safe model {m.name} failed diagnostic check: {e}")
+                    last_error = f"{m.name} failed: {str(e)}"
+                    logger.warning(f"Model diagnostic failed: {last_error}")
                     
-            self.init_error = f"All 1.5 models failed. Last error: {last_error}"
+            self.init_error = f"All available models failed. Last error: {last_error}"
             logger.error(self.init_error)
             self.model = None
             
