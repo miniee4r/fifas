@@ -41,30 +41,9 @@ class GeminiClient:
 
     def _initialize_model(self):
         try:
-            available = [m for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-            
-            if not available:
-                logger.error("No generateContent capable models found on this API key.")
-                self.model = None
-                return
-                
-            preferred_models = [
-                'models/gemini-3.5-flash',
-                'models/gemini-3.0-flash',
-                'models/gemini-2.5-flash',
-                'models/gemini-2.0-flash',
-                'models/gemini-2.0-flash-lite-001',
-                'models/gemini-1.5-flash'
-            ]
-            
-            # Sort available models, prioritize our list
-            candidate_models = sorted(
-                available, 
-                key=lambda x: preferred_models.index(x.name) if x.name in preferred_models else 999
-            )
-            
-            # Select the best model without running aggressive startup tests (which break free-tier quotas)
-            self.model_name = candidate_models[0].name
+            # Force gemini-1.5-flash which has the highest free-tier quota (15 RPM / 1500 RPD)
+            # Newer models (2.0/2.5) often return 'limit: 0' for free tier accounts in certain regions
+            self.model_name = 'gemini-1.5-flash'
             self.model = genai.GenerativeModel(model_name=self.model_name, safety_settings=self.safety_settings)
             logger.info(f"Dynamically selected model: {self.model_name}")
             
