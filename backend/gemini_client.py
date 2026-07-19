@@ -201,6 +201,11 @@ class GeminiClient:
     def _fallback_response(self, reason_key: str) -> dict:
         """Graceful degradation with human-friendly messages and cached protocols."""
         message = self._FALLBACK_MESSAGES.get(reason_key, self._FALLBACK_MESSAGES["general"])
+        
+        # If it's a general fallback, append the actual error string so we can debug it
+        if message == self._FALLBACK_MESSAGES["general"] and reason_key:
+            message += f" (System Log: {reason_key})"
+            
         return {
             "status": "fallback",
             "response": message,
