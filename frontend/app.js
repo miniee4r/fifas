@@ -5,7 +5,12 @@
  * loading spinners, and graceful offline/fallback handling.
  */
 
-const API_BASE = "http://localhost:8000/api";
+// ─── Environment Configuration ───
+// REPLACE this string with your actual Render backend URL once deployed (e.g. "https://fifa-backend.onrender.com")
+const PROD_API_URL = "https://your-render-backend-url.onrender.com";
+
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const API_BASE = isLocalhost ? "http://localhost:8000/api" : `${PROD_API_URL}/api`;
 
 // ─── DOM Elements ───────────────────────────────────────────
 const els = {
